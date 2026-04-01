@@ -410,6 +410,7 @@ class PluginStage_Branding {
 			display: none !important;
 		}
 		</style>
+		<script>document.addEventListener('DOMContentLoaded',function(){var w=document.querySelectorAll('.wrap');for(var i=0;i<w.length;i++){var c=w[i].children;for(var j=c.length-1;j>=0;j--){var e=c[j];if(e.tagName!=='DIV')continue;if(e.querySelector('.wp-list-table,.tablenav,.form-table,#your-profile,#poststuff'))continue;if(e.id&&e.id!=='')continue;var s=e.getAttribute('style')||'';var cl=e.className||'';if(s.indexOf('border-left')!==-1||s.indexOf('border-inline-start')!==-1||cl.indexOf('notice')!==-1||cl.indexOf('elementor')!==-1||cl.indexOf('promo')!==-1){e.style.display='none'}}}});</script>
 		<?php
 	}
 
