@@ -373,46 +373,44 @@ class PluginStage_Branding {
 	}
 
 	/**
-	 * Remove every admin notice from third-party plugins and WordPress core
-	 * for demo users. Unhooks all callbacks from admin_notices, all_admin_notices,
-	 * and network_admin_notices except our own banner. Also removes screen-level
-	 * nag notices and update nags.
+	 * Hide all admin notices via inline CSS printed in <head>.
+	 * Uses #wpbody-content > to only target notice containers at the top of
+	 * the page, not elements inside widgets, tables, or plugin UI.
 	 */
-	/**
-	 * Print notice-suppression CSS + JS directly in <head> so it works
-	 * regardless of enqueue capability or script loading.
-	 */
-	public function inline_notice_suppression() {
+	public function hide_notices_css() {
 		?>
-		<style>
-		.notice,.updated,.error,.update-nag,div.update-nag,#welcome-panel,.try-gutenberg-panel,.e-notice,.e-overview__go-pro,.e-admin-top-bar-promotion,.elementor-message,.elementor-notice,.elementor-admin-notice,#e-overview__go-pro,.e-a11y-promotion,.e-ally-promotion,.ekit-admin-notice,[class*="elementor"][class*="notice"],[class*="elementor"][class*="promo"],[class*="elementor"][class*="upgrade"],[class*="elementor"][class*="upsell"],[class*="elementor"][class*="a11y"],[class*="elementor"][class*="ally"],[class*="elementor"][class*="promotion"],[class*="e-notice"],[class*="e-a11y"],[class*="e-ally"],[class*="e-admin"][class*="promotion"],[id*="elementor"][class*="notice"],[id*="elementor"][class*="promotion"],[class*="admin-notice"],[class*="admin_notice"],[class*="-notice"][class*="-promo"],[class*="-notice"][class*="-upgrade"],.jkit-notice,.yoast-notice,.woocommerce-message,.woocommerce-store-alerts,.jetpack-jitm-message,.redux-notice,.astra-notice{display:none!important}
-		</style>
-		<script>
-		(function(){function r(){var s='.notice,.updated,.error,.update-nag,[class*="elementor"][class*="notice"],[class*="elementor"][class*="promo"],[class*="elementor"][class*="promotion"],[class*="elementor"][class*="a11y"],[class*="elementor"][class*="ally"],[class*="e-a11y"],[class*="e-ally"],[class*="e-notice"],[class*="admin-notice"],[class*="admin_notice"],.e-notice,.e-admin-top-bar-promotion,.elementor-message,.elementor-notice,.elementor-admin-notice,#welcome-panel,.jkit-notice,.yoast-notice,.woocommerce-message,.jetpack-jitm-message';var a=document.querySelectorAll(s);for(var i=0;i<a.length;i++){a[i].parentNode.removeChild(a[i])}var w=document.querySelector('.wrap')||document.getElementById('wpbody-content');if(w){for(var j=w.children.length-1;j>=0;j--){var e=w.children[j];if(e.tagName!=='DIV'&&e.tagName!=='SECTION')continue;if(e.id)continue;var t=e.textContent||'';if(t.indexOf('Install now')!==-1||t.indexOf('Upgrade now')!==-1||t.indexOf('Go Pro')!==-1||t.indexOf('accessibility statement')!==-1||t.indexOf('Starter Templates')!==-1){e.parentNode.removeChild(e)}}}}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',r)}else{r()}setTimeout(r,300);setTimeout(r,1000);setTimeout(r,3000);if(typeof MutationObserver!=='undefined'){new MutationObserver(r).observe(document.documentElement,{childList:true,subtree:true})}})();
-		</script>
-		<?php
-	}
-
-	public function suppress_third_party_notices() {
-		global $wp_filter;
-
-		$hooks = array(
-			'admin_notices',
-			'all_admin_notices',
-			'network_admin_notices',
-			'user_admin_notices',
-			'elementor/admin/after_create_settings/elementor',
-		);
-		foreach ( $hooks as $hook ) {
-			if ( isset( $wp_filter[ $hook ] ) ) {
-				$wp_filter[ $hook ]->callbacks = array();
-			}
+		<style id="pluginstage-hide-notices">
+		#wpbody-content > .notice,
+		#wpbody-content > .updated,
+		#wpbody-content > .error,
+		#wpbody-content > .update-nag,
+		#wpbody-content > div.update-nag,
+		.wrap > .notice,
+		.wrap > .updated,
+		.wrap > .error,
+		div.notice:not(.inline),
+		div.updated:not(.inline),
+		div.error:not(.inline),
+		#welcome-panel,
+		.try-gutenberg-panel,
+		.e-notice,
+		.e-overview__go-pro,
+		.e-admin-top-bar-promotion,
+		.elementor-message,
+		.elementor-notice,
+		.elementor-admin-notice,
+		#e-overview__go-pro,
+		[class*="elementor"][class*="notice"],
+		[class*="elementor"][class*="promo"],
+		[class*="elementor"][class*="promotion"],
+		.jkit-notice,
+		.yoast-notice,
+		.woocommerce-message,
+		.jetpack-jitm-message {
+			display: none !important;
 		}
-
-		remove_all_actions( 'admin_notices' );
-		remove_all_actions( 'all_admin_notices' );
-		remove_all_actions( 'network_admin_notices' );
-		remove_all_actions( 'user_admin_notices' );
+		</style>
+		<?php
 	}
 
 	/**
