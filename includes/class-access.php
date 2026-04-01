@@ -497,6 +497,11 @@ class PluginStage_Access {
 			return;
 		}
 
+		if ( 'pluginstage' === $page ) {
+			wp_safe_redirect( admin_url( 'admin.php?page=pluginstage-restricted' ) );
+			exit;
+		}
+
 		$blocked_scripts = array(
 			'options-general.php',
 			'options-permalink.php',
@@ -728,6 +733,8 @@ class PluginStage_Access {
 		if ( ! $this->is_demo_user() || ! class_exists( 'PluginStage_Profiles' ) ) {
 			return;
 		}
+
+		remove_menu_page( 'pluginstage' );
 
 		$user    = wp_get_current_user();
 		$plugins = $this->get_demo_allowed_plugin_files_for_user( $user );
