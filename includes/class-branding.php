@@ -338,7 +338,7 @@ class PluginStage_Branding {
 						<span class="pluginstage-footer-social"><?php echo wp_kses_post( $social ); ?></span>
 					<?php endif; ?>
 					<?php if ( $buy ) : ?>
-						<a class="pluginstage-footer-buy" href="<?php echo esc_url( $buy ); ?>"><?php esc_html_e( 'Purchase', 'pluginstage' ); ?></a>
+						<a class="pluginstage-footer-buy" href="<?php echo esc_url( $buy ); ?>"><?php esc_html_e( 'Purchase Add-ons', 'pluginstage' ); ?></a>
 					<?php endif; ?>
 				</div>
 			</div>
@@ -348,13 +348,15 @@ class PluginStage_Branding {
 		$cta_label = (string) $this->get_for_demo( '_pluginstage_cta_label', 'pluginstage_cta_label', '' );
 		$cta_url   = (string) $this->get_for_demo( '_pluginstage_cta_url', 'pluginstage_cta_url', '' );
 		$cta_bg    = (string) $this->get_for_demo( '_pluginstage_cta_bg', 'pluginstage_cta_bg', '#2271b1' );
+		$cta_fg    = (string) $this->get_for_demo( '_pluginstage_cta_text_color', 'pluginstage_cta_text_color', '#ffffff' );
 		$pos       = (string) get_option( 'pluginstage_cta_position', 'bottom-right' );
 		if ( $cta_label && $cta_url ) {
 			$class = 'pluginstage-fab pluginstage-fab--' . sanitize_html_class( $pos );
 			printf(
-				'<a id="pluginstage-fab" class="%1$s" style="background-color:%2$s" href="%3$s">%4$s</a>',
+				'<a id="pluginstage-fab" class="%1$s" style="background-color:%2$s;color:%3$s" href="%4$s">%5$s</a>',
 				esc_attr( $class ),
 				esc_attr( $cta_bg ),
+				esc_attr( $cta_fg ),
 				esc_url( $cta_url ),
 				esc_html( $cta_label )
 			);

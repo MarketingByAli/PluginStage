@@ -179,6 +179,7 @@ class PluginStage_Settings {
 			'pluginstage_cta_label',
 			'pluginstage_cta_url',
 			'pluginstage_cta_bg',
+			'pluginstage_cta_text_color',
 			'pluginstage_cta_position',
 			'pluginstage_upload_max_bytes',
 			'pluginstage_upload_mimes',
@@ -282,6 +283,7 @@ class PluginStage_Settings {
 				update_option( 'pluginstage_cta_label', sanitize_text_field( wp_unslash( $_POST['pluginstage_cta_label'] ?? '' ) ) );
 				update_option( 'pluginstage_cta_url', esc_url_raw( wp_unslash( $_POST['pluginstage_cta_url'] ?? '' ) ) );
 				update_option( 'pluginstage_cta_bg', sanitize_text_field( wp_unslash( $_POST['pluginstage_cta_bg'] ?? '' ) ) );
+				update_option( 'pluginstage_cta_text_color', sanitize_text_field( wp_unslash( $_POST['pluginstage_cta_text_color'] ?? '#ffffff' ) ) );
 				$pos = sanitize_key( wp_unslash( $_POST['pluginstage_cta_position'] ?? 'bottom-right' ) );
 				update_option( 'pluginstage_cta_position', in_array( $pos, array( 'bottom-right', 'bottom-left' ), true ) ? $pos : 'bottom-right' );
 				break;

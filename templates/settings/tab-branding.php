@@ -90,6 +90,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<td><input type="text" name="pluginstage_cta_bg" id="pluginstage_cta_bg" value="<?php echo esc_attr( (string) get_option( 'pluginstage_cta_bg', '#2271b1' ) ); ?>" /></td>
 		</tr>
 		<tr>
+			<th scope="row"><label for="pluginstage_cta_text_color"><?php esc_html_e( 'Text color', 'pluginstage' ); ?></label></th>
+			<td><input type="text" name="pluginstage_cta_text_color" id="pluginstage_cta_text_color" value="<?php echo esc_attr( (string) get_option( 'pluginstage_cta_text_color', '#ffffff' ) ); ?>" /></td>
+		</tr>
+		<tr>
 			<th scope="row"><label for="pluginstage_cta_position"><?php esc_html_e( 'Position', 'pluginstage' ); ?></label></th>
 			<td>
 				<select name="pluginstage_cta_position" id="pluginstage_cta_position">
