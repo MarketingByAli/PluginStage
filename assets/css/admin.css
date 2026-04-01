@@ -100,11 +100,15 @@ body.pluginstage-has-banner #wpbody-content {
 	text-decoration: underline;
 }
 
-.pluginstage-fab {
+.pluginstage-fab,
+.pluginstage-fab:visited,
+.pluginstage-fab:hover,
+.pluginstage-fab:focus {
 	position: fixed;
 	z-index: 10000;
 	padding: 12px 20px;
 	border-radius: 4px;
+	color: inherit !important;
 	text-decoration: none !important;
 	font-weight: 600;
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
@@ -113,7 +117,6 @@ body.pluginstage-has-banner #wpbody-content {
 .pluginstage-fab:hover,
 .pluginstage-fab:focus {
 	filter: brightness(1.08);
-	text-decoration: none !important;
 }
 
 .pluginstage-fab--bottom-right {
