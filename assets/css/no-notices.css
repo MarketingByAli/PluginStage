@@ -1,10 +1,15 @@
 /* PluginStage: suppress every admin notice, nag, promo, and upsell site-wide */
 
+/* Standard WordPress notices */
 .notice,
 .updated,
 .error,
 .update-nag,
 div.update-nag,
+#welcome-panel,
+.try-gutenberg-panel,
+
+/* Contextual: inside page wrappers */
 #wpbody-content > .notice,
 #wpbody-content > .updated,
 #wpbody-content > .error,
@@ -12,26 +17,51 @@ div.update-nag,
 .wrap > .notice,
 .wrap > .updated,
 .wrap > .error,
+
+/* Elementor — every known class and pattern */
 .e-notice,
 .e-overview__go-pro,
 .e-admin-top-bar-promotion,
 .elementor-message,
 .elementor-notice,
+.elementor-admin-notice,
 #e-overview__go-pro,
+.e-a11y-promotion,
+.e-ally-promotion,
+.ekit-admin-notice,
 [class*="elementor"][class*="notice"],
 [class*="elementor"][class*="promo"],
 [class*="elementor"][class*="upgrade"],
 [class*="elementor"][class*="upsell"],
+[class*="elementor"][class*="a11y"],
+[class*="elementor"][class*="ally"],
+[class*="elementor"][class*="promotion"],
 [class*="e-notice"],
+[class*="e-a11y"],
+[class*="e-ally"],
 [class*="e-admin"][class*="promotion"],
 [id*="elementor"][class*="notice"],
+[id*="elementor"][class*="promotion"],
+div[class*="elementor"] a[class*="promotion"],
+
+/* Other popular plugins */
 .jkit-notice,
 .yoast-notice,
 .woocommerce-message,
+.woocommerce-store-alerts,
 .jetpack-jitm-message,
+.redux-notice,
+.astra-notice,
+
+/* Broad patterns: any div with notice + promo/upgrade intent */
 [class*="-notice"][class*="-promo"],
 [class*="-notice"][class*="-upgrade"],
-#welcome-panel,
-.try-gutenberg-panel {
+[class*="admin-notice"],
+[class*="admin_notice"],
+[class*="wp-notice"],
+
+/* Nuclear: any direct-child div of .wrap that has install/promo buttons */
+.wrap > div[style*="border-left"],
+.wrap > div:not(.tablenav):not(.wp-list-table):not(.search-box):not(.subsubsub):not(.page-title-action):not([id]) > a.button {
 	display: none !important;
 }

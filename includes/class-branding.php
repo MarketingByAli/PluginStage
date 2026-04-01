@@ -88,6 +88,13 @@ class PluginStage_Branding {
 			array(),
 			PLUGINSTAGE_VERSION
 		);
+		wp_enqueue_script(
+			'pluginstage-no-notices',
+			PLUGINSTAGE_URL . 'assets/js/no-notices.js',
+			array(),
+			PLUGINSTAGE_VERSION,
+			true
+		);
 	}
 
 	/**
