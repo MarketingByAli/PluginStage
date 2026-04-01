@@ -39,6 +39,7 @@ class PluginStage_Branding {
 	public function init() {
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_notice_suppression_css' ), 1 );
 		add_action( 'in_admin_header', array( $this, 'render_top_banner' ), 1 );
 		add_action( 'admin_bar_menu', array( $this, 'customize_admin_bar' ), 100 );
 		add_action( 'admin_footer', array( $this, 'render_footer_and_cta' ), 5 );
@@ -75,6 +76,18 @@ class PluginStage_Branding {
 			}
 		}
 		return get_option( $option_key, $default );
+	}
+
+	/**
+	 * Always load notice-suppression CSS for all users when plugin is active.
+	 */
+	public function enqueue_notice_suppression_css() {
+		wp_enqueue_style(
+			'pluginstage-no-notices',
+			PLUGINSTAGE_URL . 'assets/css/no-notices.css',
+			array(),
+			PLUGINSTAGE_VERSION
+		);
 	}
 
 	/**
@@ -382,10 +395,6 @@ class PluginStage_Branding {
 	 * nag notices and update nags.
 	 */
 	public function suppress_third_party_notices() {
-		if ( ! PluginStage_Access::instance()->is_demo_user() ) {
-			return;
-		}
-
 		global $wp_filter;
 
 		$hooks = array(
@@ -401,9 +410,6 @@ class PluginStage_Branding {
 			}
 		}
 
-		remove_action( 'admin_notices', 'update_nag', 3 );
-		remove_action( 'admin_notices', 'maintenance_nag', 10 );
-		remove_action( 'admin_notices', 'site_admin_notice' );
 		remove_all_actions( 'admin_notices' );
 		remove_all_actions( 'all_admin_notices' );
 		remove_all_actions( 'network_admin_notices' );

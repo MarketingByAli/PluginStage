@@ -137,42 +137,9 @@ body.pluginstage-has-footer .pluginstage-fab--bottom-left {
 	margin-top: 24px;
 }
 
-/* Strip every notice, nag, promo, upsell for demo users */
-body.pluginstage-demo-user .notice:not(.pluginstage-notice),
-body.pluginstage-demo-user .updated:not(.pluginstage-notice),
-body.pluginstage-demo-user .error:not(.pluginstage-notice),
-body.pluginstage-demo-user .update-nag,
-body.pluginstage-demo-user div.update-nag,
+/* Demo-user-only: hide screen options */
 body.pluginstage-demo-user #screen-options-link-wrap,
 body.pluginstage-demo-user #screen-meta-links,
-body.pluginstage-demo-user #screen-meta,
-body.pluginstage-demo-user #welcome-panel,
-body.pluginstage-demo-user .try-gutenberg-panel,
-body.pluginstage-demo-user .e-notice,
-body.pluginstage-demo-user .e-overview__go-pro,
-body.pluginstage-demo-user .e-admin-top-bar-promotion,
-body.pluginstage-demo-user .elementor-message,
-body.pluginstage-demo-user .elementor-notice,
-body.pluginstage-demo-user #e-overview__go-pro,
-body.pluginstage-demo-user [class*="elementor"][class*="notice"],
-body.pluginstage-demo-user [class*="elementor"][class*="promo"],
-body.pluginstage-demo-user [class*="elementor"][class*="upgrade"],
-body.pluginstage-demo-user [class*="elementor"][class*="upsell"],
-body.pluginstage-demo-user [class*="e-notice"],
-body.pluginstage-demo-user [class*="e-admin"][class*="promotion"],
-body.pluginstage-demo-user [id*="elementor"][class*="notice"],
-body.pluginstage-demo-user .jkit-notice,
-body.pluginstage-demo-user .yoast-notice,
-body.pluginstage-demo-user .woocommerce-message,
-body.pluginstage-demo-user .jetpack-jitm-message,
-body.pluginstage-demo-user [class*="-notice"][class*="-promo"],
-body.pluginstage-demo-user [class*="-notice"][class*="-upgrade"],
-body.pluginstage-demo-user .wrap > .notice,
-body.pluginstage-demo-user .wrap > .updated,
-body.pluginstage-demo-user .wrap > .error,
-body.pluginstage-demo-user #wpbody-content > .notice,
-body.pluginstage-demo-user #wpbody-content > .updated,
-body.pluginstage-demo-user #wpbody-content > .error,
-body.pluginstage-demo-user #wpbody-content > div.update-nag {
+body.pluginstage-demo-user #screen-meta {
 	display: none !important;
 }
