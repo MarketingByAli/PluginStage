@@ -82,11 +82,40 @@ $sched = (string) get_option( 'pluginstage_reset_schedule', 'manual' );
 
 <?php if ( ! empty( $index ) ) : ?>
 	<h3><?php esc_html_e( 'Known snapshots', 'pluginstage' ); ?></h3>
-	<ul class="ul-disc">
-		<?php foreach ( $index as $item ) : ?>
-			<?php if ( ! empty( $item['id'] ) ) : ?>
-				<li><code><?php echo esc_html( $item['id'] ); ?></code></li>
-			<?php endif; ?>
-		<?php endforeach; ?>
-	</ul>
+	<table class="widefat striped" style="max-width:700px;">
+		<thead>
+			<tr>
+				<th><?php esc_html_e( 'Snapshot ID', 'pluginstage' ); ?></th>
+				<th><?php esc_html_e( 'Created', 'pluginstage' ); ?></th>
+				<th><?php esc_html_e( 'Actions', 'pluginstage' ); ?></th>
+			</tr>
+		</thead>
+		<tbody>
+			<?php foreach ( $index as $item ) : ?>
+				<?php if ( empty( $item['id'] ) ) { continue; } ?>
+				<?php
+				$sid  = sanitize_text_field( $item['id'] );
+				$date = ! empty( $item['created'] ) ? date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), (int) $item['created'] ) : '—';
+				$is_current = ( $current === $sid );
+				?>
+				<tr>
+					<td>
+						<code><?php echo esc_html( $sid ); ?></code>
+						<?php if ( $is_current ) : ?>
+							<span style="color:#2271b1;font-weight:600;margin-left:6px;"><?php esc_html_e( '(active)', 'pluginstage' ); ?></span>
+						<?php endif; ?>
+					</td>
+					<td><?php echo esc_html( $date ); ?></td>
+					<td>
+						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline;">
+							<?php wp_nonce_field( 'pluginstage_delete_snapshot_' . $sid ); ?>
+							<input type="hidden" name="action" value="pluginstage_delete_snapshot" />
+							<input type="hidden" name="pluginstage_snapshot_id" value="<?php echo esc_attr( $sid ); ?>" />
+							<button type="submit" class="button button-link-delete" onclick="return confirm('<?php echo esc_js( sprintf( __( 'Delete snapshot %s? This cannot be undone.', 'pluginstage' ), $sid ) ); ?>');"><?php esc_html_e( 'Delete', 'pluginstage' ); ?></button>
+						</form>
+					</td>
+				</tr>
+			<?php endforeach; ?>
+		</tbody>
+	</table>
 <?php endif; ?>

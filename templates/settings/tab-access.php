@@ -95,3 +95,54 @@ if ( $last_magic ) {
 <?php if ( ! empty( $last_magic ) ) : ?>
 	<div class="notice notice-info inline"><p><strong><?php esc_html_e( 'Magic URL (copy now):', 'pluginstage' ); ?></strong><br /><code style="word-break:break-all;"><?php echo esc_html( $last_magic ); ?></code></p></div>
 <?php endif; ?>
+
+<?php
+global $wpdb;
+$token_table = $wpdb->prefix . 'pluginstage_tokens';
+// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+$permanent_rows = $wpdb->get_results(
+	$wpdb->prepare(
+		"SELECT id, profile_id, created_at, ip_created FROM {$token_table} WHERE revoked = 0 AND expires_at = %s ORDER BY id DESC",
+		'9999-12-31 23:59:59'
+	),
+	ARRAY_A
+);
+if ( ! empty( $permanent_rows ) ) :
+?>
+<hr />
+<h2><?php esc_html_e( 'Active permanent links', 'pluginstage' ); ?></h2>
+<p class="description"><?php esc_html_e( 'These links never expire and can be shared publicly. Revoke any you no longer need.', 'pluginstage' ); ?></p>
+<table class="widefat striped" style="max-width:900px;">
+	<thead>
+		<tr>
+			<th><?php esc_html_e( 'ID', 'pluginstage' ); ?></th>
+			<th><?php esc_html_e( 'Profile', 'pluginstage' ); ?></th>
+			<th><?php esc_html_e( 'Created', 'pluginstage' ); ?></th>
+			<th><?php esc_html_e( 'URL', 'pluginstage' ); ?></th>
+			<th><?php esc_html_e( 'Actions', 'pluginstage' ); ?></th>
+		</tr>
+	</thead>
+	<tbody>
+		<?php foreach ( $permanent_rows as $prow ) :
+			$pid  = (int) $prow['profile_id'];
+			$pname = $pid > 0 ? get_the_title( $pid ) : __( 'Default', 'pluginstage' );
+			$date  = date_i18n( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $prow['created_at'] ) );
+		?>
+			<tr>
+				<td><?php echo esc_html( (string) (int) $prow['id'] ); ?></td>
+				<td><?php echo esc_html( $pname ); ?></td>
+				<td><?php echo esc_html( $date ); ?></td>
+				<td><span class="description"><?php esc_html_e( 'Token is hashed — share the URL generated when the link was created.', 'pluginstage' ); ?></span></td>
+				<td>
+					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="display:inline;">
+						<?php wp_nonce_field( 'pluginstage_revoke_token_' . (int) $prow['id'] ); ?>
+						<input type="hidden" name="action" value="pluginstage_revoke_token" />
+						<input type="hidden" name="pluginstage_token_id" value="<?php echo esc_attr( (string) (int) $prow['id'] ); ?>" />
+						<button type="submit" class="button button-link-delete" onclick="return confirm('<?php echo esc_js( __( 'Revoke this permanent link? It will stop working immediately.', 'pluginstage' ) ); ?>');"><?php esc_html_e( 'Revoke', 'pluginstage' ); ?></button>
+					</form>
+				</td>
+			</tr>
+		<?php endforeach; ?>
+	</tbody>
+</table>
+<?php endif; ?>

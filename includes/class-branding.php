@@ -43,6 +43,10 @@ class PluginStage_Branding {
 		add_action( 'admin_bar_menu', array( $this, 'customize_admin_bar' ), 100 );
 		add_action( 'admin_footer', array( $this, 'render_footer_and_cta' ), 5 );
 		add_action( 'wp_ajax_pluginstage_dismiss_banner', array( $this, 'ajax_dismiss_banner' ) );
+		add_action( 'admin_head', array( $this, 'suppress_third_party_notices' ), 1 );
+		add_action( 'wp_dashboard_setup', array( $this, 'clean_dashboard_widgets' ), 99999 );
+		add_filter( 'screen_options_show_screen', array( $this, 'hide_screen_options' ) );
+		add_action( 'wp_dashboard_setup', array( $this, 'remove_welcome_panel' ), 1 );
 	}
 
 	/**
@@ -105,6 +109,7 @@ class PluginStage_Branding {
 				'nextReset'   => $next,
 				'showCountdown' => (int) get_option( 'pluginstage_countdown_enabled', 1 ),
 				'countdownLabel' => __( 'Next reset:', 'pluginstage' ),
+				'imminentLabel'  => __( 'imminent', 'pluginstage' ),
 			)
 		);
 
@@ -218,7 +223,8 @@ class PluginStage_Branding {
 		$msg  = (string) $this->get_for_demo( '_pluginstage_banner_message', 'pluginstage_banner_message', '' );
 		$bg   = (string) $this->get_for_demo( '_pluginstage_banner_bg', 'pluginstage_banner_bg', '#1d2327' );
 		$fg   = (string) $this->get_for_demo( '_pluginstage_banner_text', 'pluginstage_banner_text', '#f0f0f1' );
-		$show = (int) get_option( 'pluginstage_countdown_enabled', 1 );
+		$sched = (string) get_option( 'pluginstage_reset_schedule', 'manual' );
+		$show  = ( 'manual' !== $sched ) ? (int) get_option( 'pluginstage_countdown_enabled', 1 ) : 0;
 
 		$dismissible = (int) get_option( 'pluginstage_banner_dismissible', 1 );
 		?>
@@ -364,5 +370,93 @@ class PluginStage_Branding {
 		}
 		update_user_meta( get_current_user_id(), 'pluginstage_banner_dismissed_session', 1 );
 		wp_send_json_success();
+	}
+
+	/**
+	 * Remove every admin notice from third-party plugins and WordPress core
+	 * for demo users. Unhooks all callbacks from admin_notices, all_admin_notices,
+	 * and network_admin_notices except our own banner. Also removes screen-level
+	 * nag notices and update nags.
+	 */
+	public function suppress_third_party_notices() {
+		if ( ! PluginStage_Access::instance()->is_demo_user() ) {
+			return;
+		}
+
+		remove_action( 'admin_notices', 'update_nag', 3 );
+		remove_action( 'admin_notices', 'maintenance_nag', 10 );
+		remove_action( 'admin_notices', 'site_admin_notice' );
+		remove_action( 'network_admin_notices', 'update_nag', 3 );
+		remove_action( 'network_admin_notices', 'site_admin_notice' );
+
+		$hooks = array( 'admin_notices', 'all_admin_notices', 'network_admin_notices', 'user_admin_notices' );
+		foreach ( $hooks as $hook ) {
+			global $wp_filter;
+			if ( ! isset( $wp_filter[ $hook ] ) ) {
+				continue;
+			}
+			$wp_filter[ $hook ]->callbacks = array();
+		}
+	}
+
+	/**
+	 * Aggressively strip third-party dashboard widgets.
+	 * Keeps only core widgets the demo user actually needs.
+	 */
+	public function clean_dashboard_widgets() {
+		if ( ! PluginStage_Access::instance()->is_demo_user() ) {
+			return;
+		}
+
+		global $wp_meta_boxes;
+
+		if ( ! isset( $wp_meta_boxes['dashboard'] ) || ! is_array( $wp_meta_boxes['dashboard'] ) ) {
+			return;
+		}
+
+		$keep = array(
+			'dashboard_right_now'   => true,
+			'dashboard_activity'    => true,
+			'dashboard_quick_press' => true,
+		);
+
+		foreach ( $wp_meta_boxes['dashboard'] as $context => $priorities ) {
+			if ( ! is_array( $priorities ) ) {
+				continue;
+			}
+			foreach ( $priorities as $priority => $boxes ) {
+				if ( ! is_array( $boxes ) ) {
+					continue;
+				}
+				foreach ( $boxes as $id => $box ) {
+					if ( ! isset( $keep[ $id ] ) ) {
+						unset( $wp_meta_boxes['dashboard'][ $context ][ $priority ][ $id ] );
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Hide Screen Options tab for demo users.
+	 *
+	 * @param bool $show Whether to show.
+	 * @return bool
+	 */
+	public function hide_screen_options( $show ) {
+		if ( PluginStage_Access::instance()->is_demo_user() ) {
+			return false;
+		}
+		return $show;
+	}
+
+	/**
+	 * Remove the welcome panel for demo users.
+	 */
+	public function remove_welcome_panel() {
+		if ( ! PluginStage_Access::instance()->is_demo_user() ) {
+			return;
+		}
+		remove_action( 'welcome_panel', 'wp_welcome_panel' );
 	}
 }

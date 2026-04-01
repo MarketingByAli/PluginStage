@@ -10,15 +10,18 @@
 		if (!el || typeof pluginstageAdmin === 'undefined') {
 			return;
 		}
-		if (!pluginstageAdmin.showCountdown || !pluginstageAdmin.nextReset) {
+		var next = parseInt(pluginstageAdmin.nextReset, 10) || 0;
+		if (!pluginstageAdmin.showCountdown || !next) {
+			el.style.display = 'none';
 			el.textContent = '';
 			return;
 		}
-		var ts = parseInt(pluginstageAdmin.nextReset, 10) * 1000;
+		el.style.display = '';
+		var ts = next * 1000;
 		var now = Date.now();
 		var diff = Math.floor((ts - now) / 1000);
 		if (diff <= 0) {
-			el.textContent = pluginstageAdmin.countdownLabel + ' —';
+			el.textContent = pluginstageAdmin.countdownLabel + ' ' + pluginstageAdmin.imminentLabel;
 			return;
 		}
 		var h = Math.floor(diff / 3600);

@@ -45,13 +45,14 @@ class PluginStage_Settings {
 	 */
 	public static function tabs() {
 		return array(
-			'general'  => __( 'General', 'pluginstage' ),
-			'access'   => __( 'Access', 'pluginstage' ),
-			'reset'    => __( 'Reset', 'pluginstage' ),
-			'branding' => __( 'Branding', 'pluginstage' ),
-			'tours'    => __( 'Tours', 'pluginstage' ),
-			'security' => __( 'Security', 'pluginstage' ),
-			'profiles' => __( 'Profiles', 'pluginstage' ),
+			'general'   => __( 'General', 'pluginstage' ),
+			'access'    => __( 'Access', 'pluginstage' ),
+			'analytics' => __( 'Analytics', 'pluginstage' ),
+			'reset'     => __( 'Reset', 'pluginstage' ),
+			'branding'  => __( 'Branding', 'pluginstage' ),
+			'tours'     => __( 'Tours', 'pluginstage' ),
+			'security'  => __( 'Security', 'pluginstage' ),
+			'profiles'  => __( 'Profiles', 'pluginstage' ),
 		);
 	}
 
@@ -67,6 +68,8 @@ class PluginStage_Settings {
 		add_action( 'admin_post_pluginstage_run_reset', array( $this, 'handle_run_reset' ) );
 		add_action( 'admin_post_pluginstage_generate_magic', array( $this, 'handle_generate_magic' ) );
 		add_action( 'admin_post_pluginstage_set_active_profile', array( $this, 'handle_set_active_profile' ) );
+		add_action( 'admin_post_pluginstage_delete_snapshot', array( $this, 'handle_delete_snapshot' ) );
+		add_action( 'admin_post_pluginstage_revoke_token', array( $this, 'handle_revoke_token' ) );
 		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 	}
 
@@ -384,6 +387,117 @@ class PluginStage_Settings {
 		update_option( 'pluginstage_active_profile_id', $pid, false );
 		self::flash_notice( __( 'Active profile updated.', 'pluginstage' ) );
 		wp_safe_redirect( admin_url( 'admin.php?page=' . self::SLUG . '&tab=profiles' ) );
+		exit;
+	}
+
+	/**
+	 * Delete a snapshot.
+	 */
+	public function handle_delete_snapshot() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Forbidden.', 'pluginstage' ) );
+		}
+		$sid = isset( $_POST['pluginstage_snapshot_id'] ) ? sanitize_file_name( wp_unslash( $_POST['pluginstage_snapshot_id'] ) ) : '';
+		check_admin_referer( 'pluginstage_delete_snapshot_' . $sid );
+
+		if ( '' === $sid ) {
+			self::flash_notice( __( 'No snapshot specified.', 'pluginstage' ), 'error' );
+			wp_safe_redirect( admin_url( 'admin.php?page=' . self::SLUG . '&tab=reset' ) );
+			exit;
+		}
+
+		$index = json_decode( (string) get_option( 'pluginstage_snapshots_index', '[]' ), true );
+		if ( ! is_array( $index ) ) {
+			$index = array();
+		}
+
+		$new_index = array();
+		$found     = false;
+		foreach ( $index as $item ) {
+			if ( isset( $item['id'] ) && $item['id'] === $sid ) {
+				$found = true;
+				continue;
+			}
+			$new_index[] = $item;
+		}
+
+		if ( ! $found ) {
+			self::flash_notice( __( 'Snapshot not found in index.', 'pluginstage' ), 'error' );
+			wp_safe_redirect( admin_url( 'admin.php?page=' . self::SLUG . '&tab=reset' ) );
+			exit;
+		}
+
+		$dir = trailingslashit( PLUGINSTAGE_SNAPSHOT_DIR ) . $sid;
+		if ( is_dir( $dir ) ) {
+			$this->recursive_delete_directory( $dir );
+		}
+
+		update_option( 'pluginstage_snapshots_index', wp_json_encode( $new_index ), false );
+
+		$current = (string) get_option( 'pluginstage_current_snapshot_id', '' );
+		if ( $current === $sid ) {
+			update_option( 'pluginstage_current_snapshot_id', '', false );
+		}
+
+		self::flash_notice( sprintf( __( 'Snapshot %s deleted.', 'pluginstage' ), $sid ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::SLUG . '&tab=reset' ) );
+		exit;
+	}
+
+	/**
+	 * Recursively delete a directory.
+	 *
+	 * @param string $dir Directory path.
+	 */
+	private function recursive_delete_directory( $dir ) {
+		if ( ! is_dir( $dir ) ) {
+			return;
+		}
+		$items = scandir( $dir );
+		if ( false === $items ) {
+			return;
+		}
+		foreach ( $items as $item ) {
+			if ( '.' === $item || '..' === $item ) {
+				continue;
+			}
+			$path = $dir . DIRECTORY_SEPARATOR . $item;
+			if ( is_dir( $path ) ) {
+				$this->recursive_delete_directory( $path );
+			} else {
+				wp_delete_file( $path );
+			}
+		}
+		rmdir( $dir );
+	}
+
+	/**
+	 * Revoke a magic token.
+	 */
+	public function handle_revoke_token() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'Forbidden.', 'pluginstage' ) );
+		}
+		$tid = isset( $_POST['pluginstage_token_id'] ) ? absint( $_POST['pluginstage_token_id'] ) : 0;
+		check_admin_referer( 'pluginstage_revoke_token_' . $tid );
+
+		if ( ! $tid ) {
+			self::flash_notice( __( 'No token specified.', 'pluginstage' ), 'error' );
+			wp_safe_redirect( admin_url( 'admin.php?page=' . self::SLUG . '&tab=access' ) );
+			exit;
+		}
+
+		global $wpdb;
+		$wpdb->update(
+			$wpdb->prefix . 'pluginstage_tokens',
+			array( 'revoked' => 1 ),
+			array( 'id' => $tid ),
+			array( '%d' ),
+			array( '%d' )
+		);
+
+		self::flash_notice( __( 'Token revoked.', 'pluginstage' ) );
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::SLUG . '&tab=access' ) );
 		exit;
 	}
 }

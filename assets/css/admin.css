@@ -136,3 +136,20 @@ body.pluginstage-has-footer .pluginstage-fab--bottom-left {
 	max-width: 640px;
 	margin-top: 24px;
 }
+
+/* Strip all third-party notices, nags, promos for demo users */
+body.pluginstage-demo-user .notice:not(.pluginstage-notice),
+body.pluginstage-demo-user .updated:not(.pluginstage-notice),
+body.pluginstage-demo-user .error:not(.pluginstage-notice),
+body.pluginstage-demo-user .update-nag,
+body.pluginstage-demo-user .e-notice,
+body.pluginstage-demo-user .e-overview__go-pro,
+body.pluginstage-demo-user .elementor-message,
+body.pluginstage-demo-user .e-admin-top-bar-promotion,
+body.pluginstage-demo-user #e-overview__go-pro,
+body.pluginstage-demo-user #screen-options-link-wrap,
+body.pluginstage-demo-user #screen-meta-links,
+body.pluginstage-demo-user #welcome-panel,
+body.pluginstage-demo-user .try-gutenberg-panel {
+	display: none !important;
+}
