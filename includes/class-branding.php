@@ -44,6 +44,7 @@ class PluginStage_Branding {
 		add_action( 'admin_footer', array( $this, 'render_footer_and_cta' ), 5 );
 		add_action( 'wp_ajax_pluginstage_dismiss_banner', array( $this, 'ajax_dismiss_banner' ) );
 		add_action( 'admin_head', array( $this, 'hide_notices_css' ), 1 );
+		add_action( 'admin_enqueue_scripts', array( $this, 'dequeue_promo_scripts' ), 999999 );
 		add_action( 'wp_dashboard_setup', array( $this, 'clean_dashboard_widgets' ), 99999 );
 		add_filter( 'screen_options_show_screen', array( $this, 'hide_screen_options' ) );
 		add_action( 'wp_dashboard_setup', array( $this, 'remove_welcome_panel' ), 1 );
@@ -393,20 +394,18 @@ class PluginStage_Branding {
 		div.error:not(.inline),
 		#welcome-panel,
 		.try-gutenberg-panel,
-		.e-notice,
-		.e-notice--extended,
-		.e-notice--cta,
-		.e-overview__go-pro,
-		.e-admin-top-bar-promotion,
-		.elementor-message,
-		.elementor-notice,
-		.elementor-admin-notice,
-		#e-overview__go-pro,
+		#ehe-admin-cb,
 		[class*="e-notice"],
 		[class*="elementor"][class*="notice"],
 		[class*="elementor"][class*="promo"],
 		[class*="elementor"][class*="promotion"],
 		[data-notice_id],
+		.e-overview__go-pro,
+		.e-admin-top-bar-promotion,
+		.elementor-message,
+		#e-overview__go-pro,
+		.MuiPaper-root .notice-dismiss,
+		div[class*="MuiBox-root"] > div[class*="MuiPaper-root"],
 		.jkit-notice,
 		.yoast-notice,
 		.woocommerce-message,
@@ -415,6 +414,17 @@ class PluginStage_Branding {
 		}
 		</style>
 		<?php
+	}
+
+	/**
+	 * Dequeue scripts that load promotional banners (Elementor React app, etc).
+	 * Prevents the JS from running at all, which also fixes the page load delay.
+	 */
+	public function dequeue_promo_scripts() {
+		wp_dequeue_script( 'ehe-admin-cb' );
+		wp_deregister_script( 'ehe-admin-cb' );
+		wp_dequeue_style( 'ehe-admin-cb' );
+		wp_deregister_style( 'ehe-admin-cb' );
 	}
 
 	/**
