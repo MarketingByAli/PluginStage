@@ -191,6 +191,7 @@ class PluginStage_Access {
 			$wpdb->prefix . 'pluginstage_tokens',
 			array(
 				'token_hash' => $hash,
+				'token_raw'  => $never_expire ? $raw : '',
 				'user_id'    => 0,
 				'profile_id' => (int) $profile_id,
 				'expires_at' => $expires,
@@ -198,7 +199,7 @@ class PluginStage_Access {
 				'ip_created' => $ip,
 				'revoked'    => 0,
 			),
-			array( '%s', '%d', '%d', '%s', '%s', '%s', '%d' )
+			array( '%s', '%s', '%d', '%d', '%s', '%s', '%s', '%d' )
 		);
 
 		if ( ! $inserted ) {

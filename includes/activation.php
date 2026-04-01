@@ -24,6 +24,7 @@ function pluginstage_run_activation() {
 	$sql_tokens = "CREATE TABLE {$tokens} (
 		id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 		token_hash varchar(64) NOT NULL,
+		token_raw varchar(64) DEFAULT '',
 		user_id bigint(20) unsigned NOT NULL DEFAULT 0,
 		profile_id bigint(20) unsigned NOT NULL DEFAULT 0,
 		expires_at datetime NOT NULL,

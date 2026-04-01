@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'PLUGINSTAGE_VERSION', '1.0.0' );
+define( 'PLUGINSTAGE_VERSION', '1.1.0' );
 define( 'PLUGINSTAGE_PATH', plugin_dir_path( __FILE__ ) );
 define( 'PLUGINSTAGE_URL', plugin_dir_url( __FILE__ ) );
 define( 'PLUGINSTAGE_BASENAME', plugin_basename( __FILE__ ) );
@@ -61,9 +61,23 @@ register_activation_hook( __FILE__, 'pluginstage_activate' );
 register_deactivation_hook( __FILE__, 'pluginstage_deactivate' );
 
 /**
+ * Run DB schema upgrades when plugin version changes.
+ */
+function pluginstage_maybe_upgrade() {
+	$installed = get_option( 'pluginstage_db_version', '1.0.0' );
+	if ( version_compare( $installed, PLUGINSTAGE_VERSION, '>=' ) ) {
+		return;
+	}
+	require_once PLUGINSTAGE_PATH . 'includes/activation.php';
+	pluginstage_run_activation();
+	update_option( 'pluginstage_db_version', PLUGINSTAGE_VERSION, true );
+}
+
+/**
  * Bootstrap PluginStage after plugins loaded.
  */
 function pluginstage_init() {
+	pluginstage_maybe_upgrade();
 	load_plugin_textdomain( 'pluginstage', false, dirname( PLUGINSTAGE_BASENAME ) . '/languages' );
 
 	if ( class_exists( 'PluginStage_Access' ) ) {
