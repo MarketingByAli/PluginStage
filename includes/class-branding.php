@@ -44,6 +44,9 @@ class PluginStage_Branding {
 		add_action( 'admin_footer', array( $this, 'render_footer_and_cta' ), 5 );
 		add_action( 'wp_ajax_pluginstage_dismiss_banner', array( $this, 'ajax_dismiss_banner' ) );
 		add_action( 'admin_head', array( $this, 'suppress_third_party_notices' ), 1 );
+		add_action( 'in_admin_header', array( $this, 'suppress_third_party_notices' ), 0 );
+		add_action( 'adminmenu', array( $this, 'suppress_third_party_notices' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'suppress_third_party_notices' ), 999999 );
 		add_action( 'wp_dashboard_setup', array( $this, 'clean_dashboard_widgets' ), 99999 );
 		add_filter( 'screen_options_show_screen', array( $this, 'hide_screen_options' ) );
 		add_action( 'wp_dashboard_setup', array( $this, 'remove_welcome_panel' ), 1 );
@@ -383,20 +386,28 @@ class PluginStage_Branding {
 			return;
 		}
 
+		global $wp_filter;
+
+		$hooks = array(
+			'admin_notices',
+			'all_admin_notices',
+			'network_admin_notices',
+			'user_admin_notices',
+			'elementor/admin/after_create_settings/elementor',
+		);
+		foreach ( $hooks as $hook ) {
+			if ( isset( $wp_filter[ $hook ] ) ) {
+				$wp_filter[ $hook ]->callbacks = array();
+			}
+		}
+
 		remove_action( 'admin_notices', 'update_nag', 3 );
 		remove_action( 'admin_notices', 'maintenance_nag', 10 );
 		remove_action( 'admin_notices', 'site_admin_notice' );
-		remove_action( 'network_admin_notices', 'update_nag', 3 );
-		remove_action( 'network_admin_notices', 'site_admin_notice' );
-
-		$hooks = array( 'admin_notices', 'all_admin_notices', 'network_admin_notices', 'user_admin_notices' );
-		foreach ( $hooks as $hook ) {
-			global $wp_filter;
-			if ( ! isset( $wp_filter[ $hook ] ) ) {
-				continue;
-			}
-			$wp_filter[ $hook ]->callbacks = array();
-		}
+		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'all_admin_notices' );
+		remove_all_actions( 'network_admin_notices' );
+		remove_all_actions( 'user_admin_notices' );
 	}
 
 	/**
