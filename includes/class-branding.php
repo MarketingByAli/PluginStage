@@ -39,17 +39,11 @@ class PluginStage_Branding {
 	public function init() {
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_notice_suppression_css' ), 1 );
 		add_action( 'in_admin_header', array( $this, 'render_top_banner' ), 1 );
 		add_action( 'admin_bar_menu', array( $this, 'customize_admin_bar' ), 100 );
 		add_action( 'admin_footer', array( $this, 'render_footer_and_cta' ), 5 );
 		add_action( 'wp_ajax_pluginstage_dismiss_banner', array( $this, 'ajax_dismiss_banner' ) );
-		add_action( 'admin_head', array( $this, 'suppress_third_party_notices' ), 1 );
-		add_action( 'admin_head', array( $this, 'inline_notice_suppression' ), 2 );
-		add_action( 'in_admin_header', array( $this, 'suppress_third_party_notices' ), 0 );
-		add_action( 'adminmenu', array( $this, 'suppress_third_party_notices' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'suppress_third_party_notices' ), 999999 );
-		add_action( 'admin_footer', array( $this, 'suppress_third_party_notices' ), 1 );
+		add_action( 'admin_head', array( $this, 'hide_notices_css' ), 1 );
 		add_action( 'wp_dashboard_setup', array( $this, 'clean_dashboard_widgets' ), 99999 );
 		add_filter( 'screen_options_show_screen', array( $this, 'hide_screen_options' ) );
 		add_action( 'wp_dashboard_setup', array( $this, 'remove_welcome_panel' ), 1 );
@@ -78,25 +72,6 @@ class PluginStage_Branding {
 			}
 		}
 		return get_option( $option_key, $default );
-	}
-
-	/**
-	 * Always load notice-suppression CSS for all users when plugin is active.
-	 */
-	public function enqueue_notice_suppression_css() {
-		wp_enqueue_style(
-			'pluginstage-no-notices',
-			PLUGINSTAGE_URL . 'assets/css/no-notices.css',
-			array(),
-			PLUGINSTAGE_VERSION
-		);
-		wp_enqueue_script(
-			'pluginstage-no-notices',
-			PLUGINSTAGE_URL . 'assets/js/no-notices.js',
-			array(),
-			PLUGINSTAGE_VERSION,
-			true
-		);
 	}
 
 	/**
